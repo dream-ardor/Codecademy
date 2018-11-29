@@ -23,9 +23,6 @@ Shift the variable shift_right to the right twice (>> 2) and shift the variable 
 shift_right = 0b1100 >> 2
 shift_left = 0b1 << 2
 
-# Your code here!
-
-
 print bin(shift_right)
 print bin(shift_left)
 ```
