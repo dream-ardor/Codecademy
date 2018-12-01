@@ -24,6 +24,10 @@ It's not necessary to execute the nativePromiseDinner() function, but, if you'd 
 
 * Fill in the body of the announceDinner() function so that it has the same functionality as nativePromiseDinner(). It should wait for the promise returned from brainstormDinner() to resolve, and then log a string to the console in the same format as did nativePromiseDinner(). You'll need to use the await operator inside your function.
 
+* At the bottom of app.js, beneath the function declaration, invoke the announceDinner() function.
+
+* In the terminal type node app.js and press enter to execute your code.
+
 When you're ready, check your work to move on to the next step.
 
 **My Code:**
@@ -44,4 +48,6 @@ async function announceDinner() {
   let meal = await brainstormDinner();
     console.log(`I'm going to make ${meal} for dinner.`);
 }
+
+announceDinner()
 ```
