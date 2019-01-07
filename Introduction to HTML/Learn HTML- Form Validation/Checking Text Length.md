@@ -28,6 +28,8 @@ To the <input> with an id of "username", add the following attributes and values
 a minlength of "3".
 a maxlength of "15".
 
+We also want passwords to have at least 8 characters and at most 15. So, in the opening <input> tag that has an id of "pw", add a minlength of "8" and a maxlength of "15".
+
 **My Code:**
 ```html
 <!DOCTYPE html>
@@ -50,11 +52,12 @@ a maxlength of "15".
         <br>
         <label for="pw">Password:</label>
         <br>
-        <input id="pw" name="pw" type="password" required>
+        <input id="pw" name="pw" type="password" required minlength="8" maxlength="15">
         <br>
         <input type="submit" value="Submit">
       </form>
     </section>
   </body>
 </html>
+
 ```
