@@ -1,0 +1,147 @@
+## DYNAMODB
+
+Saving Session Attributes to the Database
+
+Now that we have created a table in DynamoDB, all session attributes will automatically be written to the database when you call this.emit(‘:responseReady’); from within the intent handlers or when your session ends.
+
+Saving attributes explicitly
+
+Though, a user's attributes are automatically saved when they end a session; sometimes, you may need to explicitly save them. For example, if a user ends the session by saying ‘quit’ or if the skill times out, you have to write code that saves the attributes.
+
+You do that by adding the following line to the SessionEndedRequest handler.
+```js
+this.emit(':saveState', true)
+```
+**Instructions:**
+After the AMAZON.CancelIntent function, add a 'SessionEndedRequest' function.
+
+Inside the function, write console.log('session ended!'); and this.emit(':saveState', true);
+
+### **My Code:**
+```js
+'use strict';
+
+var Alexa = require('alexa-sdk');
+
+var flashcardsDictionary = [
+  {
+    question: 'How do you find the length of a string?',
+    rubyAnswer: 'length',
+    pythonAnswer: 'len',
+    javascriptAnswer: 'length'
+  },
+  {
+    question: 'How do you print to the console or terminal?',
+    rubyAnswer: 'puts',
+    pythonAnswer: 'print',
+    javascriptAnswer:'console.log'
+  },
+  {
+    question:'Are the boolean terms true and false capitalized or lowercase?',
+    rubyAnswer: 'lowercase',
+    pythonAnswer: 'capitalized',
+    javascriptAnswer: 'lowercase'
+  }];
+
+var DECK_LENGTH = flashcardsDictionary.length;
+
+var handlers = {
+
+  // Open Codecademy Flashcards
+  'LaunchRequest': function() {
+    this.attributes['language'] = '';
+    this.attributes['numberCorrect'] = 0;
+    this.attributes['currentFlashcardIndex'] = 0;
+
+    this.emit(':responseReady');
+  },
+
+  'SetMyLanguageIntent': function() {
+    this.attributes.flashcards.currentLanguage = this.event.request.intent.slots.languages.value;
+    if (this.attributes.flashcards.currentLanguage === 'JavaScript') {
+      this.attributes.flashcards.currentLanguage = 'javascript';
+    }
+    var currentLanguage = this.attributes.flashcards.currentLanguage
+
+    this.response
+      .speak('Okay, I will ask you some questions about ' +
+        currentLanguage + '. Here is your first question. ' + 
+        AskQuestion(this.attributes))
+      .listen(AskQuestion(this.attributes));
+
+    this.emit(':responseReady');
+  },
+
+  // User gives an answer
+  'AnswerIntent': function() {
+    var currentLanguage = this.attributes.flashcards.currentLanguage;
+    var currentFlashcardIndex = this.attributes.flashcards.languages[currentLanguage].currentFlashcardIndex;
+    var userAnswer = this.event.request.intent.slots.answer.value;
+    var languageAnswer = currentLanguage + 'Answer';
+    var correctAnswer = flashcardsDictionary[currentFlashcardIndex][languageAnswer];
+
+    if (userAnswer == correctAnswer){
+      this.attributes.flashcards.languages[currentLanguage].numberCorrect++;
+      var numberCorrect = this.attributes.flashcards.languages[currentLanguage].numberCorrect;
+      this.attributes.flashcards.languages[currentLanguage].currentFlashcardIndex++;
+      this.response
+        .speak('Nice job! The correct answer is ' + correctAnswer + '. You ' +
+          'have gotten ' + numberCorrect + ' out of ' + DECK_LENGTH + ' ' +
+          currentLanguage + ' questions correct. Here is your next question. ' + AskQuestion(this.attributes))
+        .listen(AskQuestion(this.attributes));
+    } else {
+      var numberCorrect = this.attributes.flashcards.languages[currentLanguage].numberCorrect;
+      this.attributes.flashcards.languages[currentLanguage].currentFlashcardIndex++;
+      this.response
+        .speak('Sorry, the correct answer is ' + correctAnswer + '. You ' +
+          'have gotten ' + numberCorrect + ' out of ' + DECK_LENGTH + ' ' +
+          currentLanguage + ' questions correct. Here is your next question. ' + 
+          AskQuestion(this.attributes))
+        .listen(AskQuestion(this.attributes));
+    }
+
+    this.emit(':responseReady');
+  },
+
+  // Stop
+  'AMAZON.StopIntent': function() {
+    this.response.speak('Ok, let\'s play again soon.');
+    this.emit(':responseReady');
+  },
+
+  // Cancel
+  'AMAZON.CancelIntent': function() {
+    this.response.speak('Ok, let\'s play again soon.');
+    this.emit(':responseReady');
+  },
+   //Session End
+'SessionEndedRequest': function() {
+  console.log('session ended!');
+  this.emit(':saveState', true);
+},
+};
+
+// Test my {language} knowledge
+var AskQuestion = function(attributes) {
+  var currentLanguage = attributes.flashcards.currentLanguage;
+  console.log('currentLanguage: ' + currentLanguage);
+  console.log('flashcards: ');
+  console.log(attributes.flashcards);
+  var currentFlashcardIndex = attributes.flashcards.languages[currentLanguage].currentFlashcardIndex;
+  console.log('currentFlashcardIndex: ' + currentFlashcardIndex);
+
+  if (currentFlashcardIndex >= flashcardsDictionary.length) {
+    return 'No questions remaining';
+  } else {
+    var currentQuestion = flashcardsDictionary[currentFlashcardIndex].question;
+    return 'In ' + currentLanguage + ', ' + currentQuestion;
+  }
+};
+
+exports.handler = function(event, context, callback){
+  var alexa = Alexa.handler(event, context, callback);
+  alexa.dynamoDBTableName = 'CodecademyFlashcards';
+  alexa.registerHandlers(handlers);
+  alexa.execute();
+};
+```
