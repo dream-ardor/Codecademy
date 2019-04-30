@@ -36,7 +36,7 @@ Just for kicks, edit your code so your function is invoked twice!
 <?php
 // Write your code below:
   function inflateEgo(){
-  echo "Dan, your voice is the best.\n";
+  echo "Dan, your voice is the best. :)\n";
 }
 inflateEgo();
 inflateEgo();
