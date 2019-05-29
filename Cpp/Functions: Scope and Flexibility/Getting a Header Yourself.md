@@ -51,3 +51,9 @@ int tenth_power(int num);
 bool is_palindrome(std::string text);
 
 ```
+## bash
+```bash
+g++ main.cpp fns.cpp
+
+./a.out
+```
